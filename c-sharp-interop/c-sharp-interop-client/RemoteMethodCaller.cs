@@ -14,20 +14,20 @@ namespace c_sharp_interop_client
     {
         private static HttpClient client = new HttpClient();
 
-        public TOutput Call<TInput, TOutput>(TInput @object, string methodName, IEnumerable arguments, string endpoint)
+        public TOutput Call<TInput, TOutput>(TInput @object, string methodName, IEnumerable arguments, string endpoint, string className = "")
         {
-            string className = typeof (TInput).Name;
+            if (string.IsNullOrWhiteSpace(className)) {
+                className = typeof (TInput).Name;
+            }
             var args = arguments.Cast<object>().ToArray();
 
             var data = new Dictionary<String, object>();
-            data["class"] = className;
             data["object"] = @object;
-            data["method"] = methodName;
             data["arguments"] = args;
 
             var json = JsonSerializer.Serialize(data);
             var input = new StringContent(json, Encoding.UTF8, "application/json");
-            var task = client.PostAsync(endpoint, input);
+            var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"./{className}/{methodName}")), input);
             task.Wait();
             var message = task.Result;
             var result = message.Content.ReadAsStringAsync();
