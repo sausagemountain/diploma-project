@@ -9,12 +9,11 @@ class Client{
         try {
             String className = object.getClass().getName();
             HashMap<String, Object> data = new HashMap<>();
-            data.put("class", className);
             data.put("object", object);
-            data.put("method", method);
             data.put("arguments", arguments);
 
-            HttpURLConnection connection = (HttpURLConnection) (new URL(endpoint).openConnection());
+            URL url = new URL(new URL(endpoint), className + "/" + method);
+            HttpURLConnection connection = (HttpURLConnection) (url.openConnection());
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
 
