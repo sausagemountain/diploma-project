@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace c_sharp_interop.Controllers {
@@ -7,8 +9,12 @@ namespace c_sharp_interop.Controllers {
     [Route("/")]
     public class HomeController
     {
-        private Dictionary<string, object> _allObjects = new Dictionary<string, object>(){{"",null}};
+        private Dictionary<string, object> AllObjects { get; } =
+            new Dictionary<string, object>() { { " ".Join(nameof (Registrator), "0"), Registrator.Instance } };
         private Random rand = new Random();
+
+        private IEnumerable<MethodInfo> LocalMethods => Registrator.Instance.LocalMethods;
+        private IDictionary<string, IEnumerable<string>> LocalClasses => Registrator.Instance.LocalClasses;
 
         [HttpPost("/{className}")]
         public object Object(string className, Dictionary<string, object> input = null)
@@ -24,14 +30,14 @@ namespace c_sharp_interop.Controllers {
                 if (hasId) {
                     if (idObj is string id) {
                         response["id"] = id;
-                        response["result"] = _allObjects[" ".Join(className, id)];
+                        response["result"] = AllObjects[" ".Join(className, id)];
                     }
                 }
                 else {
                     string id;
                     do {
                         id = rand.NextString(10);
-                    } while (_allObjects.ContainsKey(" ".Join(className, id)));
+                    } while (AllObjects.ContainsKey(" ".Join(className, id)));
                     response["id"] = id;
                     object obj = null;
                     if (input.TryGetValue("arguments", out object argumentsObj)) {
@@ -41,7 +47,7 @@ namespace c_sharp_interop.Controllers {
                         obj = Type.GetType(className)?.GetConstructor(new Type[] { })?.Invoke(new object[]{ });
                     }
 
-                    _allObjects[" ".Join(className, id)] = obj;
+                    AllObjects[" ".Join(className, id)] = obj;
                     response["result"] = obj;
                 }
             }
@@ -67,18 +73,18 @@ namespace c_sharp_interop.Controllers {
                 if (input.TryGetValue("id", out object idObj)) {
                     id = idObj as string;
                     if (input.TryGetValue("object", out @object)) {
-                        _allObjects[" ".Join(className, id)] = @object;
+                        AllObjects[" ".Join(className, id)] = @object;
                     }
                     else {
-                        _allObjects.TryGetValue(" ".Join(className, id), out @object);
+                        AllObjects.TryGetValue(" ".Join(className, id), out @object);
                     }
                 }
                 else {
                     if (input.TryGetValue("object", out @object)) {
                         do {
                             id = rand.NextString(10);
-                        } while (_allObjects.ContainsKey(" ".Join(className, id)));
-                        _allObjects[" ".Join(className, id)] = @object;
+                        } while (AllObjects.ContainsKey(" ".Join(className, id)));
+                        AllObjects[" ".Join(className, id)] = @object;
                     }
                     else {
                         throw new ArgumentException();
@@ -87,8 +93,12 @@ namespace c_sharp_interop.Controllers {
                 input.TryGetValue("arguments", out object argumentsObj);
 
                 var arguments = argumentsObj as object[];
-                if (Type.GetType(className).IsInstanceOfType(@object))
-                    response["result"] = Type.GetType(className)?.GetMethod(methodName)?.Invoke(@object, arguments);
+                var classType = Type.GetType(className);
+                if (LocalClasses.ContainsKey(className) && LocalClasses[className].Contains(methodName) && classType.IsInstanceOfType(@object)) {
+                    response["result"] = LocalMethods.First(m => m.DeclaringType.Name == className && m.Name == methodName)?.
+                                                      Invoke(@object, arguments);
+                    response["object"] = @object;
+                }
             }
             catch (Exception e) {
                 Console.WriteLine(e);
