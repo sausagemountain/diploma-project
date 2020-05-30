@@ -96,12 +96,5 @@ namespace c_sharp_interop.Controllers {
             }
             return response;
         }
-
-        [HttpGet]
-        public object Get()
-        {
-            return new object[]
-                   { "hello", "world" };
-        }
     }
 }

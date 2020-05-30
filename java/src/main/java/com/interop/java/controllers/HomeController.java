@@ -17,10 +17,6 @@ import java.util.Map;
 @Controller("/")
 @ResponseBody
 public class HomeController {
-    @RequestMapping(method = RequestMethod.GET)
-    public Object get() {
-        return new String[]{"hello", "world"};
-    }
     @RequestMapping(method = RequestMethod.POST, path = "/{className}")
     public Object post(@PathVariable String className, Map<String, Object> input) {
         HashMap<String, Object> map = new HashMap<>();
