@@ -1,4 +1,7 @@
+import json
+
 from flask import Flask, request, Response, jsonify
+import http.client as http_client
 import base64
 import random
 
@@ -7,14 +10,10 @@ app = Flask(__name__)
 all_objects = dict()
 
 
-def run():
-    app.run()
-
-
 def generate_id(length: int):
     data = bytearray()
     for i in range(length):
-        data.append(random.randrange(0,256))
+        data.append(random.randrange(0, 256))
     result = str(base64.b64encode(bytearray(data)), 'utf-8')
     return result
 
@@ -126,9 +125,32 @@ register_method(None, register_module)
 register_method(None, remove_module)
 
 
-@app.route('/gui/all')
+@app.route('/gui/here')
 def get_guis():
     return registered_guis
+
+
+@app.route('/gui/all')
+def get_guis():
+    all_guis = list()
+    all_guis.extend(registered_guis)
+    lines = list()
+    try:
+        with open("gui_uris.config", 'rt') as file:
+            lines = file.readlines()
+    except OSError:
+        pass
+    for url in lines:
+        conn = http_client.HTTPConnection(url)
+        conn.connect()
+        conn.request('GET', f'/gui/here')
+        all_guis.extend(json.loads(conn.getresponse().msg.get_payload()))
+        conn.close()
+    return all_guis
+
+
+def run():
+    app.run()
 
 
 if __name__ == '__main__':
