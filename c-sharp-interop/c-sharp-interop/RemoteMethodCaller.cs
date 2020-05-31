@@ -27,13 +27,13 @@ namespace c_sharp_interop
 
             var json = JsonSerializer.Serialize(data);
             var input = new StringContent(json, Encoding.UTF8, "application/json");
-            var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"./{className}/{methodName}")), input);
+            var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"/{className}/{methodName}")), input);
             task.Wait();
             var message = task.Result;
-            var result = message.Content.ReadAsStringAsync();
-            result.Wait();
+            var resultTask = message.Content.ReadAsStringAsync();
+            resultTask.Wait();
 
-            var response = (TOutput) JsonSerializer.Deserialize(result.Result, typeof (TOutput));
+            var response = (TOutput) JsonSerializer.Deserialize(resultTask.Result, typeof (TOutput));
             return response;
         }
         
@@ -45,7 +45,7 @@ namespace c_sharp_interop
             data["arguments"] = args;
 
             var input = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-            var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"./{className}")), input);
+            var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"/{className}")), input);
             task.Wait();
             var message = task.Result;
             var result = message.Content.ReadAsStringAsync();
