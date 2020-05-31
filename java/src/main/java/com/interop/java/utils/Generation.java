@@ -1,4 +1,4 @@
-package com.interop.java;
+package com.interop.java.utils;
 
 import java.util.Base64;
 import java.util.Random;

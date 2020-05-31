@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace c_sharp_interop.Controllers {
     [ApiController]
-    [Route("/")]
+    [Route("/api/")]
     public class HomeController
     {
         private Dictionary<string, object> AllObjects { get; } =

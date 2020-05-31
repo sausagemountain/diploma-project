@@ -1,6 +1,6 @@
 package com.interop.java.controllers;
 
-import com.interop.java.Generation;
+import com.interop.java.utils.Generation;
 import com.interop.java.Registrator;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller("/")
+@Controller("/api/")
 @ResponseBody
 public class HomeController {
     private HashMap<String, Object> allObjects = new HashMap<>();
@@ -61,6 +61,7 @@ public class HomeController {
         }
         return response;
     }
+
     @RequestMapping(method = RequestMethod.POST, path = "/{className}/{methodName}")
     public Object callMethod(@PathVariable String className, @PathVariable String methodName, Map<String, Object> input) {
         HashMap<String, Object> response = new HashMap<>();

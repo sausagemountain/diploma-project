@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace c_sharp_interop_client
+namespace c_sharp_interop
 {
     public class RemoteMethodCaller
     {
@@ -28,6 +28,24 @@ namespace c_sharp_interop_client
             var json = JsonSerializer.Serialize(data);
             var input = new StringContent(json, Encoding.UTF8, "application/json");
             var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"./{className}/{methodName}")), input);
+            task.Wait();
+            var message = task.Result;
+            var result = message.Content.ReadAsStringAsync();
+            result.Wait();
+
+            var response = (TOutput) JsonSerializer.Deserialize(result.Result, typeof (TOutput));
+            return response;
+        }
+        
+        public TOutput New<TOutput>(string className, IEnumerable arguments, string endpoint)
+        {
+            var args = arguments.Cast<object>().ToArray();
+
+            var data = new Dictionary<String, object>();
+            data["arguments"] = args;
+
+            var input = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+            var task = client.PostAsync(new Uri(new Uri(endpoint),new Uri($"./{className}")), input);
             task.Wait();
             var message = task.Result;
             var result = message.Content.ReadAsStringAsync();
