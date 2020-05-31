@@ -19,7 +19,7 @@ public class Registrator {
         try {
             instance.AddMethod(Registrator.class.getMethod("AddModule", String.class, String.class));
             instance.AddMethod(Registrator.class.getMethod("AddModule", String.class, String.class, String.class));
-            instance.AddMethod(Registrator.class.getMethod("RemoveMethod", Method.class));
+            instance.AddMethod(Registrator.class.getMethod("RemoveModule", String.class));
         } catch (Throwable e) {
             e.printStackTrace();
         }

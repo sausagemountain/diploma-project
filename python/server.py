@@ -1,5 +1,4 @@
-from builtins import function
-
+from types import FunctionType
 from flask import Flask, request, Response, jsonify
 import base64
 import random
@@ -7,6 +6,10 @@ import random
 app = Flask(__name__)
 
 all_objects = dict()
+
+
+def run():
+    app.run()
 
 
 def generate_id(length: int):
@@ -39,7 +42,8 @@ def new_instance(class_name: str):
             'id': id,
             'result': result
         }
-    except Exception:
+    except Exception as e:
+        print(e)
         return {
             'error': 'cannot complete operation'
         }
@@ -69,7 +73,8 @@ def call_method(class_name: str, method_name: str):
             'id': id,
             'result': result
         }
-    except Exception:
+    except Exception as e:
+        print(e)
         return {
             'error': 'cannot complete operation'
         }
@@ -82,21 +87,21 @@ def known_classes():
     return {str(t): [str(m) for m in l] for t, l in registered_methods}
 
 
-def register_method(clazz: type, method: function):
+def register_method(clazz, function):
     if clazz is None:
         clazz = type(None)
     n = registered_methods.get(clazz, [])
-    n.append(method)
+    n.append(function)
     registered_methods[clazz] = n
 
 
-def remove_method(clazz: type, method: function):
+def remove_method(clazz, function):
     if clazz is None:
         clazz = type(None)
     n = registered_methods.get(clazz, [])
-    n.remove(method)
+    n.remove(function)
     if len(n) == 0:
-        registered_methods.pop(method)
+        registered_methods.pop(function)
     else:
         registered_methods[clazz] = n
 
@@ -106,9 +111,9 @@ registered_guis= dict()
 
 
 def register_module(name: str, url: str, guiUrl = ''):
-    if guiUrl.strip() == '':
+    if guiUrl.strip() != '':
         registered_guis[name] = guiUrl.strip()
-    if url.strip() == '':
+    if url.strip() != '':
         registered_modules[name] = url.strip()
 
 
@@ -118,5 +123,14 @@ def remove_module(name: str):
     pass
 
 
+register_method(None, register_module)
+register_method(None, remove_module)
+
+
+@app.route('/gui/all')
+def get_guis():
+    return registered_guis
+
+
 if __name__ == '__main__':
-    app.run()
+    run()

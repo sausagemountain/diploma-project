@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace c_sharp_interop.Controllers {
     [ApiController]
     [Route("/api/")]
-    public class HomeController
+    public class MainApiController
     {
         private Dictionary<string, object> AllObjects { get; } =
             new Dictionary<string, object>() { { " ".Join(nameof (Registrator), "0"), Registrator.Instance } };
