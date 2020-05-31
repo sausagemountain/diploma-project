@@ -1,4 +1,3 @@
-from types import FunctionType
 from flask import Flask, request, Response, jsonify
 import base64
 import random
