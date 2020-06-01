@@ -1,0 +1,13 @@
+<section id="main-grid">
+  <header >
+    <ul>
+      <li *ngFor="let tab of tabList" (click)="tabSelect(tab)" class="{{(selectedTab && selectedTab.name === tab.name) ? 'selected' : ''}}">
+        <app-tab name="{{tab.name}}" url="{{tab.url}}"></app-tab>
+      </li>
+    </ul>
+  </header>
+  <span class="middle {{selectedTab ? 'collapsed' : ''}}">Select a tab</span>
+  <main>
+    <app-tab-content *ngFor="let tab of tabList" url="{{tab.url}}" class="{{(selectedTab && tab.url === selectedTab.url && tab.name === selectedTab.name) ? '': 'collapsed'}}"></app-tab-content>
+  </main>
+</section>

@@ -1,0 +1,98 @@
+nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: grid;
+  grid-template-areas: "a"
+    "b";
+  grid-template-rows: auto 1fr;
+}
+
+nav > div {
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding-inline: 0;
+}
+
+ul > li {
+  margin: 0.5em 1em;
+  cursor: pointer;
+}
+
+input[type=checkbox]{
+  display: none;
+}
+
+label {
+  padding: calc(.25em + 1px);
+  margin: .25em;
+  background: rgba(0, 0, 0, 1);
+  transition: all 0.3s;
+  cursor: pointer;
+  z-index: 99;
+  height: 2em;
+  width: 2em;
+  user-select: none;
+  border-radius: 5px;
+  display: inline-block;
+  grid-area: a;
+}
+
+label > div {
+  height: 100%;
+  width: 100%;
+}
+
+.spinner {
+  transition: all 0.3s;
+  float: left;
+  margin-top: 15%;
+  height: 15%;
+  width: 100%;
+  background-color: #fff;
+}
+
+.horizontal{
+
+}
+
+.diagonal.part-1{
+  margin-top: 12.5%;
+}
+
+.diagonal.part-2{
+
+}
+
+input[type=checkbox]:not(:checked) ~ div.sidebar {
+  display: none;
+}
+
+input[type=checkbox]:checked ~ label .horizontal {
+  transition: all 0.3s;
+  width: 2%;
+  margin-top: -15%;
+  margin-left: 49%;
+}
+
+input[type=checkbox]:checked ~ label .diagonal.part-1 {
+  transition: all 0.3s;
+  transform: rotate(135deg);
+  margin-top: 41.5%;
+}
+
+input[type=checkbox]:checked ~ label .diagonal.part-2 {
+  transition: all 0.3s;
+  transform: rotate(-135deg);
+  margin-top: -14.5%;
+}
+
+.sidebar{
+  grid-area: b;
+  margin-top: 1px;
+  background: rgba(0, 0, 0, 0.5);
+}

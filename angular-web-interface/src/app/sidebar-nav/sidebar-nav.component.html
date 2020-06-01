@@ -1,0 +1,17 @@
+<nav>
+  <input type="checkbox" id="sidebar-nav-checkbox">
+  <label for="sidebar-nav-checkbox">
+    <div>
+      <div class="spinner diagonal part-1"></div>
+      <div class="spinner horizontal"></div>
+      <div class="spinner diagonal part-2"></div>
+    </div>
+  </label>
+  <div class="sidebar">
+    <ul>
+      <li *ngFor="let item of items" (click)="this.sendEvent(item)">
+        {{item.name}}
+      </li>
+    </ul>
+  </div>
+</nav>

@@ -1,0 +1,45 @@
+ul{
+  display: inline-flex;
+  text-align: center;
+  padding-inline: 0;
+  margin-block: 0;
+  padding: 0;
+  margin: 0;
+  background: #444;
+  color: #eee;
+  width: 100%;
+}
+ul > li {
+  flex: 1 1;
+  padding: 1em 2em;
+  list-style-type: none;
+}
+
+.selected {
+  background: #222;
+}
+
+#main-grid {
+  display: grid;
+  grid-template-areas:
+    "a"
+    "b";
+  grid-template-rows: 3.3em auto;
+  height: calc(100vh - 1px);
+  width: calc(100vw - 1px);
+}
+
+main {
+  grid-area: b;
+}
+
+header {
+  grid-area: a;
+}
+
+.middle {
+  grid-area: b;
+  align-self: center;
+  text-align: center;
+  font-size: 6em;
+}

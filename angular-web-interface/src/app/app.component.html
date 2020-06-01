@@ -1,0 +1,11 @@
+<app-tab-list
+  [tabList]="lastPlugins"
+  (tabSelected)="selectTabNoUpdate($event)"
+  [selectedTab]="selectedTab"
+>
+</app-tab-list>
+<app-sidebar-nav
+  [items]="allPlugins"
+  (itemClicked)="selectTab($event)"
+>
+</app-sidebar-nav>
