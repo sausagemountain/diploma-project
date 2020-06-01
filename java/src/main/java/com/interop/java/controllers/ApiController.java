@@ -2,20 +2,20 @@ package com.interop.java.controllers;
 
 import com.interop.java.utils.Generation;
 import com.interop.java.Registrator;
+import com.interop.java.utils.Http;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller("/api/")
+@Controller
+@RequestMapping("/api")
 @ResponseBody
-public class HomeController {
+public class ApiController {
     private HashMap<String, Object> allObjects = new HashMap<>();
 
     {
@@ -23,7 +23,7 @@ public class HomeController {
     }
     
     @RequestMapping(method = RequestMethod.POST, path = "/{className}")
-    public Object newObject(@PathVariable String className, Map<String, Object> input) {
+    public Object newObject(@PathVariable String className, @RequestBody Map<String, Object> input) {
 
         HashMap<String, Object> response = new HashMap<>();
 
@@ -41,18 +41,20 @@ public class HomeController {
                 do {
                     id = Generation.id(10);
                 } while (allObjects.containsKey(String.join(" ",className, id)));
-                response.put("id", id);
+
                 Object obj = null;
                 Object[] arguments = (Object[]) input.get("arguments");
+                Class clazz = Registrator.getInstance().getLocalClasses(className).keySet().stream().findFirst().get();
                 if (arguments != null) {
-                    obj = Class.forName(className).getConstructor((Class<?>[]) Arrays.stream(arguments).map(e -> e.getClass()).toArray()).newInstance(arguments);
+                    obj = clazz.getConstructor((Class<?>[]) Arrays.stream(arguments).map(Object::getClass).toArray())
+                            .newInstance(arguments);
                 }
                 else {
-                    obj = Class.forName(className).newInstance();
+                    obj = clazz.newInstance();
                 }
-
                 allObjects.put(String.join(" ", className, id), obj);
-                response.put("result", obj);
+                response.put("result", Http.gson.toJson(obj));
+                response.put("id", id);
             }
         }
         catch (Throwable e) {
@@ -63,7 +65,7 @@ public class HomeController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/{className}/{methodName}")
-    public Object callMethod(@PathVariable String className, @PathVariable String methodName, Map<String, Object> input) {
+    public Object callMethod(@PathVariable String className, @PathVariable String methodName, @RequestBody Map<String, Object> input) {
         HashMap<String, Object> response = new HashMap<>();
 
         if (input == null) {
@@ -93,11 +95,18 @@ public class HomeController {
                 }
             }
 
-            Object[] arguments = (Object[]) input.get("arguments");
-            Class classType = Class.forName(className);
-            if (Registrator.getInstance().getLocalClasses().containsKey(className) && Registrator.getInstance().getLocalClasses().get(className).contains(methodName) && classType.isInstance(object)) {
-                response.put("result", Registrator.getInstance().getLocalMethods().stream().filter((Method m) -> m.getName().equals(methodName) && m.getDeclaringClass().getName().equals(className)).findFirst().get());
-                response.put("object", object);
+            ArrayList<Object> arguments = (ArrayList<Object>) input.get("arguments");
+            Class classType = Registrator.getInstance().getLocalClasses(className).entrySet().stream().findFirst().get().getKey();
+            if (!Registrator.getInstance().getLocalClasses(className, methodName).isEmpty() && classType.isInstance(object)) {
+                response.put("result", Registrator.getInstance()
+                        .getLocalClasses(className, methodName)
+                        .entrySet().stream()
+                        .findFirst()
+                        .get()
+                        .getValue()
+                        .get(0)
+                        .invoke(object, arguments.toArray()));
+                response.put("object", Http.gson.toJson(object));
             }
         }
         catch (Throwable e) {

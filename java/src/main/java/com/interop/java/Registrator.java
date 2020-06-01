@@ -1,12 +1,12 @@
 package com.interop.java;
 
+import com.interop.java.utils.Generation;
+import sun.security.util.ArrayUtil;
+
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Registrator {
@@ -20,13 +20,14 @@ public class Registrator {
             instance.AddMethod(Registrator.class.getMethod("AddModule", String.class, String.class));
             instance.AddMethod(Registrator.class.getMethod("AddModule", String.class, String.class, String.class));
             instance.AddMethod(Registrator.class.getMethod("RemoveModule", String.class));
+            instance.AddMethod(Generation.class.getMethod("id", Integer.class));
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
 
-    public Map<String, List<String>> getLocalClasses() {
+    public Map<String, List<String>> getLocalClassNames() {
         return getLocalMethods().stream()
                 .map(m -> m.getDeclaringClass().getName())
                 .distinct()
@@ -35,6 +36,41 @@ public class Registrator {
                         v -> getLocalMethods().stream()
                                 .filter(m -> m.getDeclaringClass().getName().equals(v))
                                 .map(Method::getName)
+                                .collect(Collectors.toList())));
+    }
+
+    public Map<Class, List<Method>> getLocalClasses() {
+        return getLocalMethods().stream()
+                .map(m -> m.getDeclaringClass())
+                .distinct()
+                .collect(Collectors.toMap(
+                        k -> k,
+                        v -> getLocalMethods().stream()
+                                .filter(m -> m.getDeclaringClass().equals(v))
+                                .collect(Collectors.toList())));
+    }
+
+    public Map<Class, List<Method>> getLocalClasses(String className) {
+        return getLocalMethods().stream()
+                .map(Method::getDeclaringClass)
+                .filter(c -> c.getName().equals(className) || Arrays.stream(c.getName().split("\\.")).reduce((first, second) -> second).get().equals(className))
+                .distinct()
+                .collect(Collectors.toMap(
+                        k -> k,
+                        v -> getLocalMethods().stream()
+                                .filter(m -> m.getDeclaringClass().equals(v))
+                                .collect(Collectors.toList())));
+    }
+
+    public Map<Class, List<Method>> getLocalClasses(String className, String methodName) {
+        return getLocalClasses(className)
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        k -> k.getKey(),
+                        v -> getLocalMethods().stream()
+                                .filter(m -> m.getDeclaringClass().equals(v.getKey()))
+                                .filter(m -> m.getName().equals(methodName))
                                 .collect(Collectors.toList())));
     }
 
