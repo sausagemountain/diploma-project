@@ -24,7 +24,7 @@ namespace c_sharp_interop.Controllers
             foreach ((string key, string value) in Registrator.Instance.GuiList()) {
                 all.Add(key, value);
             }
-            string[] lines = System.IO.File.ReadAllLines("gui_uris.config");
+            string[] lines = System.IO.File.ReadAllLines("gui_uris.conf");
             foreach (string line in lines) {
                 HttpClient client = new HttpClient();
                 var task = client.GetAsync(new Uri(new Uri(line),new Uri($"/gui/here")));
