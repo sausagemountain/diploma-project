@@ -6,8 +6,8 @@ import base64
 import random
 
 app = Flask(__name__)
-
 all_objects = dict()
+registered_methods = dict()
 
 
 def generate_id(length: int):
@@ -50,19 +50,21 @@ def new_instance(class_name: str):
 @app.route('/api/<class_name>/<method_name>', methods=['POST'])
 def call_method(class_name: str, method_name: str):
     try:
-        id = request.json['id']
+        id = request.json.get('id')
         internal_id = ' '.join([class_name, id])
-        object = request.json['object']
+        object = request.json.get('object', '')
         if object is not None:
             all_objects[internal_id] = object
         else:
             object = all_objects[internal_id]
 
-        arguments = request.json['arguments']
+        arguments = request.json.get('arguments')
 
-        clazz = [i for i in registered_methods.keys() if class_name == str(i)][0]
-        method = [i for i in registered_methods[clazz] if method_name == str(i)][0]
-        if object is not None:
+        clazz = [i for i in registered_methods.keys() if (class_name == i or (type(class_name) != type('') and class_name == i.__name__))][0]
+        method = [i for i in registered_methods[clazz] if method_name == i.__name__][0]
+        if type(object) == type(''):
+            result = method(*arguments)
+        elif object is not None:
             result = method(object, *arguments)
         else:
             return None
@@ -76,9 +78,6 @@ def call_method(class_name: str, method_name: str):
         return {
             'error': 'cannot complete operation'
         }
-
-
-registered_methods = dict()
 
 
 def known_classes():
@@ -105,10 +104,10 @@ def remove_method(clazz, function):
 
 
 registered_modules = dict()
-registered_guis= dict()
+registered_guis = dict()
 
 
-def register_module(name: str, url: str, guiUrl = ''):
+def register_module(name: str, url: str, guiUrl=''):
     if guiUrl.strip() != '':
         registered_guis[name] = guiUrl.strip()
     if url.strip() != '':
@@ -121,22 +120,19 @@ def remove_module(name: str):
     pass
 
 
-register_method(None, register_module)
-register_method(None, remove_module)
-
-
-@app.route('/gui/here')
-def get_guis():
-    return registered_guis
+register_method('Registrator', register_module)
+register_method('Registrator', remove_module)
+register_method('Generator', generate_id)
+#all_objects['Registrator 0'] =
 
 
 @app.route('/gui/all')
-def get_guis():
+def get_all_guis():
     all_guis = list()
     all_guis.extend(registered_guis)
     lines = list()
     try:
-        with open("gui_uris.config", 'rt') as file:
+        with open("gui_uris.conf", 'rt') as file:
             lines = file.readlines()
     except OSError:
         pass
@@ -147,6 +143,11 @@ def get_guis():
         all_guis.extend(json.loads(conn.getresponse().msg.get_payload()))
         conn.close()
     return all_guis
+
+
+@app.route('/gui/here')
+def get_guis():
+    return registered_guis
 
 
 def run():
