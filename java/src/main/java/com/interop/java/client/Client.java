@@ -17,11 +17,7 @@ public class Client{
 
             URL url = new URL(new URL(new URL(endpoint), "/api/"), className + "/" + method);
             HttpURLConnection connection = Http.connectionFor(url);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-
-            Http.writeData(connection, Http.gson.toJson(data));
+            Http.postJson(connection,data, data.getClass());
 
             return Http.gson.fromJson(Http.readData(connection), data.getClass());
         } catch (Throwable e) {
@@ -37,11 +33,7 @@ public class Client{
 
             URL url = new URL(new URL(new URL(endpoint), "/api/"), className);
             HttpURLConnection connection = Http.connectionFor(url);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-
-            Http.writeData(connection, Http.gson.toJson(data));
+            Http.postJson(connection,data, data.getClass());
 
             return Http.gson.fromJson(Http.readData(connection), data.getClass());
         } catch (Throwable e) {
