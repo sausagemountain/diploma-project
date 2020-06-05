@@ -11,10 +11,10 @@ namespace c_sharp_interop.Controllers
     [ApiController]
     public class MainApiController
     {
+        private static readonly Random rand = new Random();
+
         private static Dictionary<string, object> AllObjects { get; } =
             new Dictionary<string, object> { { " ".Join(nameof (Registrator), "0"), Registrator.Instance } };
-
-        private static readonly Random rand = new Random();
 
         [HttpPost("{className}")]
         public object Object(string className, MethodCall input = null)
@@ -33,7 +33,11 @@ namespace c_sharp_interop.Controllers
                     object obj = null;
                     Type type = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
                     if (input.Arguments != null)
-                        obj = type.GetConstructor(JArray.Parse(input.Arguments.ToString()).Select(e => (Type) e.GetType()).ToArray())?.
+                        obj = type.GetConstructor(
+                                       JArray.Parse(input.Arguments.ToString()).
+                                              Select(e => (Type) e.GetType()).
+                                              ToArray()
+                                   )?.
                                    Invoke(JArray.Parse(input.Arguments.ToString()).ToArray());
                     else
                         obj = type.GetConstructor(new Type[] { })?.
@@ -56,13 +60,6 @@ namespace c_sharp_interop.Controllers
             }
 
             return response;
-        }
-
-        public class MethodCall
-        {
-            [JsonPropertyName("id")] public string Id { get; set; }
-            [JsonPropertyName("arguments")] public object Arguments { get; set; }
-            [JsonPropertyName("object")] public object Object { get; set; }
         }
 
         [HttpPost("{className}/{methodName}")]
@@ -116,6 +113,13 @@ namespace c_sharp_interop.Controllers
             }
 
             return response;
+        }
+
+        public class MethodCall
+        {
+            [JsonPropertyName("id")] public string Id { get; set; }
+            [JsonPropertyName("arguments")] public object Arguments { get; set; }
+            [JsonPropertyName("object")] public object Object { get; set; }
         }
     }
 }

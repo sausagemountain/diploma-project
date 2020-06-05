@@ -25,14 +25,13 @@ namespace c_sharp_interop.Controllers
             var all = new Dictionary<string, string>();
             foreach ((string key, string value) in Registrator.Instance.GuiList())
                 all.Add(key, value);
-            string[] lines = System.IO.File
-                                   .ReadAllLines("gui_uris.conf")
-                                   .Concat(Registrator.Instance.Modules.Keys)
-                                   .ToArray();
+            string[] lines = System.IO.File.ReadAllLines("gui_uris.conf").
+                                    Concat(Registrator.Instance.Modules.Keys).
+                                    ToArray();
             foreach (string line in lines) {
                 var client = new HttpClient();
-                Task<HttpResponseMessage> task = client
-                    .GetAsync(new Uri(new Uri(line), new Uri("/gui/here")));
+                Task<HttpResponseMessage> task = client.
+                    GetAsync(new Uri(new Uri(line), new Uri("/gui/here")));
                 task.Wait();
 
                 HttpResponseMessage message = task.Result;

@@ -15,8 +15,18 @@ namespace c_sharp_interop
         private static readonly Lazy<Registrator> _instance = new Lazy<Registrator>(
             () => {
                 var reg = new Registrator();
-                reg.AddMethod(typeof (Registrator).GetMethod(nameof (AddModule), new[] { typeof (string), typeof (string) }));
-                reg.AddMethod(typeof (Registrator).GetMethod(nameof (AddModule), new[] { typeof (string), typeof (string), typeof (string) }));
+                reg.AddMethod(
+                    typeof (Registrator).GetMethod(
+                        nameof (AddModule),
+                        new[] { typeof (string), typeof (string) }
+                    )
+                );
+                reg.AddMethod(
+                    typeof (Registrator).GetMethod(
+                        nameof (AddModule),
+                        new[] { typeof (string), typeof (string), typeof (string) }
+                    )
+                );
                 reg.AddMethod(typeof (Registrator).GetMethod(nameof (RemoveModule)));
                 reg.AddMethod(typeof (Generator).GetMethod(nameof (Generator.Id)));
                 return reg;
@@ -34,13 +44,24 @@ namespace c_sharp_interop
             get {
                 return LocalMethods.Select(m => m.DeclaringType?.Name).
                                     Distinct().
-                                    ToDictionary(c => c, c => LocalMethods.Where(m => m.DeclaringType.Name == c).Select(m => m.Name));
+                                    ToDictionary(
+                                        c => c,
+                                        c => LocalMethods.
+                                             Where(m => m.DeclaringType.Name == c).
+                                             Select(m => m.Name)
+                                    );
             }
         }
 
         public IDictionary<Type, IEnumerable<MethodInfo>> LocalClasses {
             get {
-                return LocalMethods.Select(m => m.DeclaringType).Distinct().ToDictionary(c => c, c => LocalMethods.Where(m => m.DeclaringType == c));
+                return LocalMethods.Select(m => m.DeclaringType).
+                                    Distinct().
+                                    ToDictionary(
+                                        c => c,
+                                        c => LocalMethods.
+                                            Where(m => m.DeclaringType == c)
+                                    );
             }
         }
 

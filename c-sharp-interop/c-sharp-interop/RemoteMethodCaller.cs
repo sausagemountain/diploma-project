@@ -13,8 +13,13 @@ namespace c_sharp_interop
     {
         private static readonly HttpClient client = new HttpClient();
 
-        public TOutput Call<TInput, TOutput>(TInput @object, string methodName, 
-                                             IEnumerable arguments, string endpoint, string className = "")
+        public TOutput Call<TInput, TOutput>(
+            TInput @object,
+            string methodName,
+            IEnumerable arguments,
+            string endpoint,
+            string className = ""
+        )
         {
             if (string.IsNullOrWhiteSpace(className))
                 className = typeof (TInput).Name;
@@ -26,7 +31,8 @@ namespace c_sharp_interop
 
             string json = JsonSerializer.Serialize(data);
             var input = new StringContent(json, Encoding.UTF8, "application/json");
-            Task<HttpResponseMessage> task = client.PostAsync(new Uri(new Uri(endpoint), new Uri($"/{className}/{methodName}")), input);
+            Task<HttpResponseMessage> task = client.
+                PostAsync(new Uri(new Uri(endpoint), new Uri($"/{className}/{methodName}")), input);
             task.Wait();
             HttpResponseMessage message = task.Result;
             Task<string> resultTask = message.Content.ReadAsStringAsync();
@@ -44,7 +50,8 @@ namespace c_sharp_interop
             data["arguments"] = args;
 
             var input = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
-            Task<HttpResponseMessage> task = client.PostAsync(new Uri(new Uri(endpoint), new Uri($"/{className}")), input);
+            Task<HttpResponseMessage> task = client.
+                PostAsync(new Uri(new Uri(endpoint), new Uri($"/{className}")), input);
             task.Wait();
             HttpResponseMessage message = task.Result;
             Task<string> result = message.Content.ReadAsStringAsync();
