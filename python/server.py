@@ -29,9 +29,10 @@ def new_instance(class_name: str):
         else:
             result = clazz()
 
-        id = None
-        while id is not None and ' '.join([class_name, id]) not in all_objects.keys():
+        while True:
             id = generate_id(10)
+            if ' '.join([class_name, id]) not in all_objects.keys():
+                break
         internal_id = ' '.join([class_name, id])
 
         all_objects[internal_id] = result
@@ -142,12 +143,12 @@ def get_all_guis():
         conn.request('GET', f'/gui/here')
         all_guis.extend(json.loads(conn.getresponse().msg.get_payload()))
         conn.close()
-    return all_guis
+    return jsonify(all_guis)
 
 
 @app.route('/gui/here')
 def get_guis():
-    return registered_guis
+    return jsonify(registered_guis)
 
 
 def run():
