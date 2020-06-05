@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -11,7 +12,19 @@ namespace c_sharp_interop.Controllers
     [ApiController]
     public class MainApiController
     {
-        private static readonly Random rand = new Random();
+        static MainApiController()
+        {
+            _cleaner = new Timer(
+                obj => { AllObjects.Clear(); },
+                null,
+                new TimeSpan(1, 0, 0),
+                new TimeSpan(1, 0, 0)
+            );
+        }
+
+        private static Timer _cleaner;
+
+        private static readonly Random Rand = new Random();
 
         private static Dictionary<string, object> AllObjects { get; } =
             new Dictionary<string, object> { { " ".Join(nameof (Registrator), "0"), Registrator.Instance } };
@@ -45,7 +58,7 @@ namespace c_sharp_interop.Controllers
 
                     string id;
                     do {
-                        id = rand.NextString(10);
+                        id = Rand.NextString(10);
                     } while (AllObjects.ContainsKey(" ".Join(className, id)));
 
                     response["id"] = id;
@@ -83,7 +96,7 @@ namespace c_sharp_interop.Controllers
                 else {
                     if (input.Object != null) {
                         do {
-                            input.Id = rand.NextString(10);
+                            input.Id = Rand.NextString(10);
                         } while (AllObjects.ContainsKey(" ".Join(className, input.Id)));
 
                         AllObjects[" ".Join(className, input.Id)] = input.Object;

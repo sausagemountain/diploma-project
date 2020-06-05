@@ -11,17 +11,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/api")
 @ResponseBody
 public class ApiController {
-    private HashMap<String, Object> allObjects = new HashMap<>();
+    private static final ScheduledExecutorService cleaner = new ScheduledThreadPoolExecutor(2);
+    private final HashMap<String, Object> allObjects = new HashMap<>();
 
     {
         allObjects.put(String.join(" ", Registrator.class.getName(), "0"), Registrator.getInstance());
+        cleaner.scheduleAtFixedRate(allObjects::clear,60*60,60*60, TimeUnit.SECONDS);
     }
-    
+
     @RequestMapping(method = RequestMethod.POST, path = "/{className}")
     public Object newObject(@PathVariable String className, @RequestBody Map<String, Object> input) {
 

@@ -1,9 +1,4 @@
-import json
-
-from flask import Flask, request, Response, jsonify
-import http.client as http_client
-import base64
-import random
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 all_objects = dict()
@@ -11,6 +6,8 @@ registered_methods = dict()
 
 
 def generate_id(length: int):
+    import base64
+    import random
     data = bytearray()
     for i in range(length):
         data.append(random.randrange(0, 256))
@@ -124,11 +121,12 @@ def remove_module(name: str):
 register_method('Registrator', register_module)
 register_method('Registrator', remove_module)
 register_method('Generator', generate_id)
-#all_objects['Registrator 0'] =
 
 
 @app.route('/gui/all')
 def get_all_guis():
+    import json
+    import http.client as http_client
     all_guis = list()
     all_guis.extend(registered_guis)
     lines = list()
@@ -152,7 +150,21 @@ def get_guis():
     return jsonify(registered_guis)
 
 
+def __periodic__(sch, interval: int, action, args=()):
+    sch.enter(interval, 1, __periodic__, (interval, __periodic__, args))
+    action(*args)
+
+
+def __clear__():
+    all_objects.clear()
+
+
 def run():
+    import sched
+    import time
+    sch = sched.scheduler(time.time, time.sleep)
+    __periodic__(sch, 60*60, __clear__)
+    sch.run(False)
     app.run()
 
 
