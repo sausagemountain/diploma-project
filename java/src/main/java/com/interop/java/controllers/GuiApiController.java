@@ -30,6 +30,7 @@ public class GuiApiController {
         try {
             HashMap<String, String> all = new HashMap<>(getGuis());
             List<String> lines = Files.readAllLines(Paths.get("gui_uris.conf"));
+            lines.addAll(Registrator.getInstance().getModules().keySet());
             for (String line : lines) {
                 URL url = new URL(new URL(line), "/gui/here");
                 HttpURLConnection connection = Http.connectionFor(url);

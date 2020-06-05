@@ -137,6 +137,7 @@ def get_all_guis():
             lines = file.readlines()
     except OSError:
         pass
+    list.extend(registered_modules.values())
     for url in lines:
         conn = http_client.HTTPConnection(url)
         conn.connect()
