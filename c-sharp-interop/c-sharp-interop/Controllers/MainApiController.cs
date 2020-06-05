@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
-namespace c_sharp_interop.Controllers {
+namespace c_sharp_interop.Controllers
+{
     [Route("api")]
     [ApiController]
     public class MainApiController
     {
         private static Dictionary<string, object> AllObjects { get; } =
-            new Dictionary<string, object>() { { " ".Join(nameof (Registrator), "0"), Registrator.Instance } };
-        private static Random rand = new Random();
+            new Dictionary<string, object> { { " ".Join(nameof (Registrator), "0"), Registrator.Instance } };
+
+        private static readonly Random rand = new Random();
 
         [HttpPost("{className}")]
         public object Object(string className, MethodCall input = null)
         {
             var response = new Dictionary<string, object>();
 
-            if (input == null) {
+            if (input == null)
                 return null;
-            }
-            
+
             try {
                 if (input.Id != null) {
                     response["id"] = input.Id;
@@ -32,20 +31,19 @@ namespace c_sharp_interop.Controllers {
                 }
                 else {
                     object obj = null;
-                    var type = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
-                    if (input.Arguments != null) {
+                    Type type = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
+                    if (input.Arguments != null)
                         obj = type.GetConstructor(JArray.Parse(input.Arguments.ToString()).Select(e => (Type) e.GetType()).ToArray())?.
                                    Invoke(JArray.Parse(input.Arguments.ToString()).ToArray());
-                    }
-                    else {
+                    else
                         obj = type.GetConstructor(new Type[] { })?.
-                                   Invoke(new object[]{ });
-                    }
+                                   Invoke(new object[] { });
 
                     string id;
                     do {
                         id = rand.NextString(10);
                     } while (AllObjects.ContainsKey(" ".Join(className, id)));
+
                     response["id"] = id;
 
                     AllObjects[" ".Join(className, id)] = obj;
@@ -56,17 +54,15 @@ namespace c_sharp_interop.Controllers {
                 Console.WriteLine(e);
                 response["error"] = "cannot complete operation";
             }
+
             return response;
         }
 
         public class MethodCall
         {
-            [JsonPropertyName("id")]
-            public string Id { get; set; }
-            [JsonPropertyName("arguments")]
-            public object Arguments { get; set; }
-            [JsonPropertyName("object")]
-            public object Object { get; set; }
+            [JsonPropertyName("id")] public string Id { get; set; }
+            [JsonPropertyName("arguments")] public object Arguments { get; set; }
+            [JsonPropertyName("object")] public object Object { get; set; }
         }
 
         [HttpPost("{className}/{methodName}")]
@@ -74,10 +70,9 @@ namespace c_sharp_interop.Controllers {
         {
             var response = new Dictionary<string, object>();
 
-            if (input == null) {
+            if (input == null)
                 return null;
-            }
-            
+
             try {
                 if (input.Id != null) {
                     if (input.Object != null) {
@@ -93,6 +88,7 @@ namespace c_sharp_interop.Controllers {
                         do {
                             input.Id = rand.NextString(10);
                         } while (AllObjects.ContainsKey(" ".Join(className, input.Id)));
+
                         AllObjects[" ".Join(className, input.Id)] = input.Object;
                     }
                     else {
@@ -100,14 +96,17 @@ namespace c_sharp_interop.Controllers {
                     }
                 }
 
-                var classType = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
-                if (Registrator.Instance.LocalClassNames[className].Contains(methodName) && 
+                Type classType = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
+                if (Registrator.Instance.LocalClassNames[className].Contains(methodName) &&
                     classType.IsInstanceOfType(input.Object)) {
-                    response["result"] = Registrator.Instance.
-                                                     LocalClasses[classType].
-                                                     First(e => e.Name == methodName).
-                                                     Invoke(input.Object, 
-                                                            JArray.Parse(input.Arguments.ToString()).Select(e => e.ToNative()).ToArray());
+                    response["result"] =
+                        Registrator.Instance.
+                                    LocalClasses[classType].
+                                    First(e => e.Name == methodName).
+                                    Invoke(
+                                        input.Object,
+                                        JArray.Parse(input.Arguments.ToString()).Select(e => e.ToNative()).ToArray()
+                                    );
                     response["object"] = input.Object;
                 }
             }
@@ -115,6 +114,7 @@ namespace c_sharp_interop.Controllers {
                 Console.WriteLine(e);
                 response["error"] = "cannot complete operation";
             }
+
             return response;
         }
     }

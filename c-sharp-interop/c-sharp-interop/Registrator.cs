@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace c_sharp_interop
 {
@@ -11,36 +10,37 @@ namespace c_sharp_interop
     {
     #region Singleton
 
-        private Registrator(){}
-        private static Lazy<Registrator> _instance = new Lazy<Registrator>(
+        private Registrator() { }
+
+        private static readonly Lazy<Registrator> _instance = new Lazy<Registrator>(
             () => {
                 var reg = new Registrator();
-                reg.AddMethod(typeof (Registrator).GetMethod(nameof(AddModule), new []{typeof(string), typeof(string)}));
-                reg.AddMethod(typeof (Registrator).GetMethod(nameof(AddModule), new []{typeof(string), typeof(string), typeof(string)}));
-                reg.AddMethod(typeof (Registrator).GetMethod(nameof(RemoveModule)));
-                reg.AddMethod(typeof(Generator).GetMethod(nameof(Generator.Id)));
+                reg.AddMethod(typeof (Registrator).GetMethod(nameof (AddModule), new[] { typeof (string), typeof (string) }));
+                reg.AddMethod(typeof (Registrator).GetMethod(nameof (AddModule), new[] { typeof (string), typeof (string), typeof (string) }));
+                reg.AddMethod(typeof (Registrator).GetMethod(nameof (RemoveModule)));
+                reg.AddMethod(typeof (Generator).GetMethod(nameof (Generator.Id)));
                 return reg;
-            }, LazyThreadSafetyMode.ExecutionAndPublication);
+            },
+            LazyThreadSafetyMode.ExecutionAndPublication
+        );
+
         public static Registrator Instance => _instance.Value;
 
     #endregion
 
     #region local
 
-        public IDictionary<string, IEnumerable<string>> LocalClassNames{
+        public IDictionary<string, IEnumerable<string>> LocalClassNames {
             get {
-                return LocalMethods.Select(m => m.DeclaringType?.Name).Distinct()
-                                   .ToDictionary(c => c, c => LocalMethods
-                                                              .Where(m => m.DeclaringType.Name == c)
-                                                              .Select(m => m.Name));
+                return LocalMethods.Select(m => m.DeclaringType?.Name).
+                                    Distinct().
+                                    ToDictionary(c => c, c => LocalMethods.Where(m => m.DeclaringType.Name == c).Select(m => m.Name));
             }
         }
 
-        public IDictionary<Type, IEnumerable<MethodInfo>> LocalClasses{
+        public IDictionary<Type, IEnumerable<MethodInfo>> LocalClasses {
             get {
-                return LocalMethods.Select(m => m.DeclaringType).Distinct()
-                                   .ToDictionary(c => c, c => LocalMethods
-                                                              .Where(m => m.DeclaringType == c));
+                return LocalMethods.Select(m => m.DeclaringType).Distinct().ToDictionary(c => c, c => LocalMethods.Where(m => m.DeclaringType == c));
             }
         }
 
@@ -68,7 +68,7 @@ namespace c_sharp_interop
         private readonly Dictionary<string, Uri> _guiModules = new Dictionary<string, Uri>();
         public IDictionary<string, Uri> GuiModules => _guiModules;
 
-        public void AddModule(string name ,string uri)
+        public void AddModule(string name, string uri)
         {
             _modules.Add(name, new Uri(uri));
         }

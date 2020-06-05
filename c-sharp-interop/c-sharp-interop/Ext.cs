@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
@@ -64,7 +63,7 @@ namespace c_sharp_interop
 
     public class Generator
     {
-        private Random rand { get; set; } = new Random();
+        private Random rand { get; } = new Random();
 
         public string Id(long length)
         {
