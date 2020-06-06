@@ -7,8 +7,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Client{
-    public static HashMap<String, Object> Call(String className, Object object, String id, String method, Object[] arguments, String endpoint){
+public class Client {
+    public static HashMap<String, Object> Call(String className, Object object, String id,
+                                               String method, Object[] arguments, String endpoint) {
         try {
             HashMap<String, Object> data = new HashMap<>();
             data.put("object", object);
@@ -17,7 +18,7 @@ public class Client{
 
             URL url = new URL(new URL(new URL(endpoint), "/api/"), className + "/" + method);
             HttpURLConnection connection = Http.connectionFor(url);
-            Http.postJson(connection,data, data.getClass());
+            Http.postJson(connection, data);
 
             return Http.gson.fromJson(Http.readData(connection), data.getClass());
         } catch (Throwable e) {
@@ -26,14 +27,14 @@ public class Client{
         return null;
     }
 
-    public static Map<String, Object> New(String className, Object[] arguments, String endpoint){
+    public static Map<String, Object> New(String className, Object[] arguments, String endpoint) {
         try {
             HashMap<String, Object> data = new HashMap<>();
             data.put("arguments", arguments);
 
             URL url = new URL(new URL(new URL(endpoint), "/api/"), className);
             HttpURLConnection connection = Http.connectionFor(url);
-            Http.postJson(connection,data, data.getClass());
+            Http.postJson(connection, data);
 
             return Http.gson.fromJson(Http.readData(connection), data.getClass());
         } catch (Throwable e) {

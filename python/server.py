@@ -58,7 +58,8 @@ def call_method(class_name: str, method_name: str):
 
         arguments = request.json.get('arguments')
 
-        clazz = [i for i in registered_methods.keys() if (class_name == i or (type(class_name) != type('') and class_name == i.__name__))][0]
+        clazz = [i for i in registered_methods.keys() if
+                 (class_name == i or (type(class_name) != type('') and class_name == i.__name__))][0]
         method = [i for i in registered_methods[clazz] if method_name == i.__name__][0]
         if type(object) == type(''):
             result = method(*arguments)
@@ -163,7 +164,7 @@ def run():
     import sched
     import time
     sch = sched.scheduler(time.time, time.sleep)
-    __periodic__(sch, 60*60, __clear__)
+    __periodic__(sch, 60 * 60, __clear__)
     sch.run(False)
     app.run()
 

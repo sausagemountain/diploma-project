@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 @ResponseBody
 public class GuiApiController {
     @RequestMapping(method = RequestMethod.GET, path = "/here")
-    public Map<String, String> getGuis(){
+    public Map<String, String> getGuis() {
         return Registrator.getInstance().getGuiModules().entrySet().stream().collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().toString()));
     }
 
     @RequestMapping(method = RequestMethod.GET, path = "/all")
-    public Map<String, String> getAllGuis(){
+    public Map<String, String> getAllGuis() {
         try {
             HashMap<String, String> all = new HashMap<>(getGuis());
             List<String> lines = Files.readAllLines(Paths.get("gui_uris.conf"));

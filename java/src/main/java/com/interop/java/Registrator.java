@@ -1,19 +1,15 @@
 package com.interop.java;
 
 import com.interop.java.utils.Generation;
-import sun.security.util.ArrayUtil;
 
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Registrator {
-    public static Registrator getInstance(){
-        return instance;
-    }
     private static final Registrator instance;
+
     static {
         instance = new Registrator();
         try {
@@ -26,6 +22,13 @@ public class Registrator {
         }
     }
 
+    private final LinkedList<Method> localMethods = new LinkedList<Method>();
+    private final HashMap<String, URL> modules = new HashMap<>();
+    private final HashMap<String, URL> guiModules = new HashMap<>();
+
+    public static Registrator getInstance() {
+        return instance;
+    }
 
     public Map<String, List<String>> getLocalClassNames() {
         return getLocalMethods().stream()
@@ -74,35 +77,27 @@ public class Registrator {
                                 .collect(Collectors.toList())));
     }
 
-    private final LinkedList<Method> localMethods = new LinkedList<Method>();
-
     public List<Method> getLocalMethods() {
         return localMethods;
     }
 
-    public void AddMethod(Method method)
-    {
+    public void AddMethod(Method method) {
         localMethods.add(method);
     }
 
-    public void RemoveMethod(Method method)
-    {
+    public void RemoveMethod(Method method) {
         localMethods.remove(method);
     }
 
-
-    private final HashMap<String, URL> modules = new HashMap<>();
     public Map<String, URL> getModules() {
         return modules;
     }
 
-    private final HashMap<String, URL> guiModules = new HashMap<>();
     public Map<String, URL> getGuiModules() {
         return guiModules;
     }
 
-    public void AddModule(String name ,String uri)
-    {
+    public void AddModule(String name, String uri) {
         try {
             modules.put(name, new URL(uri));
         } catch (Throwable e) {
@@ -110,8 +105,7 @@ public class Registrator {
         }
     }
 
-    public void AddModule(String name, String uri, String guiUri)
-    {
+    public void AddModule(String name, String uri, String guiUri) {
         try {
             modules.put(name, new URL(uri));
             guiModules.put(name, new URL(guiUri));
@@ -120,14 +114,12 @@ public class Registrator {
         }
     }
 
-    public void RemoveModule(String name)
-    {
+    public void RemoveModule(String name) {
         modules.remove(name);
         guiModules.remove(name);
     }
 
-    public Map<String, String> GuiList()
-    {
+    public Map<String, String> GuiList() {
         return getGuiModules().entrySet().stream().collect(Collectors.toMap(k -> k.getKey(), v -> v.getValue().toString()));
     }
 }

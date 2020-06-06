@@ -1,8 +1,6 @@
-import json
-import http.client as http_client
-
-
 def call_method(object, id: str, class_name: str, method_name: str, arguments: list, endpoint: str):
+    import http.client as http_client
+    import json
     conn = http_client.HTTPConnection(endpoint)
     obj = json.dumps({
         'id': id,
@@ -17,6 +15,8 @@ def call_method(object, id: str, class_name: str, method_name: str, arguments: l
 
 
 def new_object(class_name: str, arguments: list, endpoint: str):
+    import http.client as http_client
+    import json
     conn = http_client.HTTPConnection(endpoint)
     obj = json.dumps({
         'arguments': arguments

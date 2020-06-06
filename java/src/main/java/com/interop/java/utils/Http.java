@@ -15,9 +15,9 @@ import java.nio.charset.StandardCharsets;
 public class Http {
     public static Gson gson = new Gson();
 
-    public static String readData(URLConnection con){
+    public static String readData(URLConnection con) {
         String result = "";
-        try(BufferedReader br = new BufferedReader(
+        try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
             String responseLine;
@@ -25,29 +25,30 @@ public class Http {
                 response.append(responseLine.trim());
             }
             result = response.toString();
-        } catch (IOException ignored){ }
+        } catch (IOException ignored) {
+        }
         return result;
     }
-    public static void writeData(URLConnection con, String input){
-        try(OutputStream os = con.getOutputStream()) {
-            byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
-            os.write(bytes, 0, bytes.length);
-        }
-        catch (IOException ignored){ }
-    }
+
     public static HttpURLConnection connectionFor(URL url) throws IOException {
         return (HttpURLConnection) (url.openConnection());
     }
-    public static HttpURLConnection postJson(HttpURLConnection con, Object data, Class type){
+
+    public static HttpURLConnection postJson(HttpURLConnection con, Object data) {
         try {
             con.setRequestMethod("POST");
-        } catch (ProtocolException e) {
+            con.setRequestProperty("Content-Type", "application/json; utf-8");
+            con.setRequestProperty("Accept", "application/json");
+
+            String input = Http.gson.toJson(data);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
+                os.write(bytes, 0, bytes.length);
+            }
+            return con;
+        } catch (Throwable e) {
             e.printStackTrace();
         }
-        con.setRequestProperty("Content-Type", "application/json; utf-8");
-        con.setRequestProperty("Accept", "application/json");
-
-        Http.writeData(con, Http.gson.toJson(data, type));
-        return con;
+        return null;
     }
 }
