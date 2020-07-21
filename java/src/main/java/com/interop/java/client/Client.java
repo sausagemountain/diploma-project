@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Client {
-    public static HashMap<String, Object> Call(String className, Object object, String id,
+    public static HashMap<String, Object> call(String className, Object object, String id,
                                                String method, Object[] arguments, String endpoint) {
         try {
             HashMap<String, Object> data = new HashMap<>();
@@ -27,7 +27,7 @@ public class Client {
         return null;
     }
 
-    public static Map<String, Object> New(String className, Object[] arguments, String endpoint) {
+    public static Map<String, Object> _new(String className, Object[] arguments, String endpoint) {
         try {
             HashMap<String, Object> data = new HashMap<>();
             data.put("arguments", arguments);

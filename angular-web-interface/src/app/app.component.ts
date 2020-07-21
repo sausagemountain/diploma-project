@@ -14,17 +14,25 @@ export class AppComponent {
 
   lastPlugins = this.sourceLastPlugins;
 
+  fetchUrl = 'localhost:8080';
+
   get fetchPlugins(){
     return [
-      new MyPlugin('openstreetmap', 'https://www.openstreetmap.org/export/embed.html?bbox=56.1%2C58%2C56.45%2C57.99'),
-      new MyPlugin('example.net', 'https://www.example.net'),
-      new MyPlugin('disqus', 'https://disqus.com/'),
-      new MyPlugin('example.com', 'https://www.example.com'),
-      new MyPlugin('example0', 'https://www.example.com'),
-      new MyPlugin('example1', 'https://www.example.com'),
-      new MyPlugin('example2', 'https://www.example.com')
+      new MyPlugin('Inspector', 'https://linghub.ru/inspector_realec/'),
+      new MyPlugin('ADWISER', 'https://linghub.ru/adwiser/'),
     ];
   }
+
+  // selectTab(tab: MyPlugin){
+  //   this.__updateSelected__(tab);
+  //   this.__refreshTabs__();
+  //   this.__selectTab__(tab);
+  // }
+  //
+  // selectTabNoUpdate(tab: MyPlugin){
+  //   this.__updateSelected__(tab);
+  //   this.__selectTab__(tab);
+  // }
 
   get sourceLastPlugins(){
     let last = [...this.allPlugins].sort((a, b) => {
@@ -35,14 +43,14 @@ export class AppComponent {
   }
 
   selectTab(tab: MyPlugin){
-    this.__updateSelected__(tab);
-    this.__refreshTabs__();
-    this.__selectTab__(tab);
+    tab.lastAccessTime = new Date();
+    this.lastPlugins = this.sourceLastPlugins;
+    this.selectedTab = tab;
   }
 
   selectTabNoUpdate(tab: MyPlugin){
-    this.__updateSelected__(tab);
-    this.__selectTab__(tab);
+    tab.lastAccessTime = new Date();
+    this.selectedTab = tab;
   }
 
   __updateSelected__(tab: MyPlugin){

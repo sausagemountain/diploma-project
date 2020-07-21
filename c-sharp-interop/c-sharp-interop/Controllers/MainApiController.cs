@@ -46,15 +46,11 @@ namespace c_sharp_interop.Controllers
                     object obj = null;
                     Type type = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
                     if (input.Arguments != null)
-                        obj = type.GetConstructor(
-                                       JArray.Parse(input.Arguments.ToString()).
-                                              Select(e => (Type) e.GetType()).
-                                              ToArray()
-                                   )?.
-                                   Invoke(JArray.Parse(input.Arguments.ToString()).ToArray());
+                        obj = type.GetConstructor(input.Arguments.Select(i => new JObject(i))
+                                                       .Select(e => e.GetType()).ToArray())?.
+                                   Invoke(input.Arguments.Select(i => new JObject(i)).Cast<dynamic>().ToArray());
                     else
-                        obj = type.GetConstructor(new Type[] { })?.
-                                   Invoke(new object[] { });
+                        obj = type.GetConstructor(new Type[] { })?.Invoke(new object[] { });
 
                     string id;
                     do {
@@ -82,15 +78,15 @@ namespace c_sharp_interop.Controllers
 
             if (input == null)
                 return null;
-
             try {
+                dynamic @object = input.Object;
                 if (input.Id != null) {
                     if (input.Object != null) {
                         AllObjects[" ".Join(className, input.Id)] = input.Object;
                     }
                     else {
                         AllObjects.TryGetValue(" ".Join(className, input.Id), out object o);
-                        input.Object = o;
+                        @object = o;
                     }
                 }
                 else {
@@ -102,20 +98,16 @@ namespace c_sharp_interop.Controllers
                         AllObjects[" ".Join(className, input.Id)] = input.Object;
                     }
                     else {
-                        throw new ArgumentException();
+                        throw new Exception();
                     }
                 }
-
                 Type classType = Registrator.Instance.LocalClasses.First(p => p.Key.Name == className).Key;
-                if (Registrator.Instance.LocalClassNames[className].Contains(methodName) &&
-                    classType.IsInstanceOfType(input.Object)) {
+                if (Registrator.Instance.LocalClassNames[className].Contains(methodName)) {
                     response["result"] =
-                        Registrator.Instance.
-                                    LocalClasses[classType].
-                                    First(e => e.Name == methodName).
+                        Registrator.Instance.LocalClasses[classType].First(e => e.Name == methodName).
                                     Invoke(
-                                        input.Object,
-                                        JArray.Parse(input.Arguments.ToString()).Select(e => e.ToNative()).ToArray()
+                                        @object,
+                                        input.Arguments.Select(i => new JObject(i)).Cast<dynamic>().ToArray()
                                     );
                     response["object"] = input.Object;
                 }
@@ -131,8 +123,8 @@ namespace c_sharp_interop.Controllers
         public class MethodCall
         {
             [JsonPropertyName("id")] public string Id { get; set; }
-            [JsonPropertyName("arguments")] public object Arguments { get; set; }
-            [JsonPropertyName("object")] public object Object { get; set; }
+            [JsonPropertyName("arguments")] public JArray Arguments { get; set; }
+            [JsonPropertyName("object")] public JObject Object { get; set; }
         }
     }
 }

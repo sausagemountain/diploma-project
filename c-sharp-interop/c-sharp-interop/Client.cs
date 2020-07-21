@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace c_sharp_interop
 {
-    public class RemoteMethodCaller
+    public class Client
     {
         private static readonly HttpClient client = new HttpClient();
 

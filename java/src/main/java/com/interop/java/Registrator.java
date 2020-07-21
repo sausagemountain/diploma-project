@@ -13,10 +13,10 @@ public class Registrator {
     static {
         instance = new Registrator();
         try {
-            instance.AddMethod(Registrator.class.getMethod("AddModule", String.class, String.class));
-            instance.AddMethod(Registrator.class.getMethod("AddModule", String.class, String.class, String.class));
-            instance.AddMethod(Registrator.class.getMethod("RemoveModule", String.class));
-            instance.AddMethod(Generation.class.getMethod("id", Integer.class));
+            instance.addMethod(Registrator.class.getMethod("AddModule", String.class, String.class));
+            instance.addMethod(Registrator.class.getMethod("AddModule", String.class, String.class, String.class));
+            instance.addMethod(Registrator.class.getMethod("RemoveModule", String.class));
+            instance.addMethod(Generation.class.getMethod("id", Integer.class));
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -81,11 +81,11 @@ public class Registrator {
         return localMethods;
     }
 
-    public void AddMethod(Method method) {
+    public void addMethod(Method method) {
         localMethods.add(method);
     }
 
-    public void RemoveMethod(Method method) {
+    public void removeMethod(Method method) {
         localMethods.remove(method);
     }
 
